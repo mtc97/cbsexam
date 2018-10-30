@@ -6,8 +6,17 @@ import java.security.NoSuchAlgorithmException;
 import org.bouncycastle.util.encoders.Hex;
 
 public final class Hashing {
+  public String salt;
 
-  // TODO: You should add a salt and make this secure
+  // TODO: You should add a salt and make this secure fix
+  public static String md5HashWithSalt (String string){
+   //laver et tilfældigt salt
+    String salt = "as8dfhas7";
+    //laver en string der indeholder den streng der skal hashes og salt
+    String hashedStringMd5 = string + salt;
+    //returnere vores streng til rawstring i hashing metoden
+    return md5(hashedStringMd5);
+  }
   public static String md5(String rawString) {
     try {
 
@@ -37,7 +46,13 @@ public final class Hashing {
     return null;
   }
 
-  // TODO: You should add a salt and make this secure
+  // TODO: You should add a salt and make this secure fix
+  public static String shaHashWithSalt(String string){
+    String salt = "as12asdf123";
+    String hashedStringSha = string + salt;
+    return sha(hashedStringSha);
+  }
+
   public static String sha(String rawString) {
     try {
       // We load the hashing algoritm we wish to use.
