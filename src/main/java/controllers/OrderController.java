@@ -179,6 +179,12 @@ public class OrderController {
       }catch(SQLException e1){
         System.out.println("Could not rollback the updates" + e1.getMessage());
       }
+    } finally {
+      try {
+        connection.setAutoCommit(true);
+      } catch (SQLException e) {
+        e.printStackTrace();
+      }
     }
     // Return order
     return order;
