@@ -110,4 +110,18 @@ public class DatabaseController {
     // Return the resultset which at this point will be null
     return result;
   }
+
+    public Boolean deleteUpdate(String sqlState) {
+      if (connection == null)
+        connection = getConnection();
+
+      try{
+        PreparedStatement deleteUpdate = connection.prepareStatement(sqlState);
+        deleteUpdate.executeUpdate();
+        return true;
+      }catch (SQLException sqlE){
+        sqlE.printStackTrace();
+        return false;
+      }
+    }
 }

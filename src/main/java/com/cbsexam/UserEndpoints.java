@@ -4,11 +4,7 @@ import cache.UserCache;
 import com.google.gson.Gson;
 import controllers.UserController;
 import java.util.ArrayList;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import model.User;
@@ -94,17 +90,37 @@ public class UserEndpoints {
     return Response.status(400).entity("Endpoint not implemented yet").build();
   }
 
-  // TODO: Make the system able to delete users
-  public Response deleteUser(String x) {
+  // TODO: Make the system able to delete users fix
+  @DELETE
+  @Path("/delete/{user_id}")
+  @Consumes(MediaType.APPLICATION_JSON)
+  public Response deleteUser(@PathParam("user_id")int id) {
 
-    // Return a response with status 200 and JSON as type
-    return Response.status(400).entity("Endpoint not implemented yet").build();
+    Boolean delete = UserController.deleteUser(id);
+
+    userCache.getUsers(false);
+    if(delete) {
+      return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity("User " + id + "has been removed from the webshop").build();
+    }else{
+      return Response.status(400).entity("User has not been found").build();
+    }
   }
 
-  // TODO: Make the system able to update users
-  public Response updateUser(String x) {
+  // TODO: Make the system able to update users fix
+  @POST
+  @Path("/post/{user_id}")
+  @Consumes(MediaType.APPLICATION_JSON)
+  public Response updateUser(@PathParam("user_id") int userId, String body) {
 
-    // Return a response with status 200 and JSON as type
-    return Response.status(400).entity("Endpoint not implemented yet").build();
+    User user = new Gson().fromJson(body, User.class);
+
+    Boolean update = UserController.updateUser(user, userId);
+
+    userCache.getUsers(true);
+    if(update){
+      return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity("User " + userId + "has been updated").build();
+    }else{
+      return Response.status(400).entity("User has not been found").build();
+    }
   }
 }

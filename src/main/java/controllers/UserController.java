@@ -133,4 +133,42 @@ public class UserController {
     // Return user
     return user;
   }
+
+  public static Boolean deleteUser(int id) {
+    Log.writeLog(UserController.class.getName(), id, "Deleting a user", 0);
+
+    if (dbCon == null) {
+      dbCon = new DatabaseController();
+    }
+
+    User user = UserController.getUser(id);
+
+    if(user!=null){
+      dbCon.deleteUpdate("DELETE FROM user WHERE id="+id);
+      return true;
+    }
+    else{
+      return false;
+    }
+
+  }
+
+  public static Boolean updateUser(User user, int userId) {
+    Log.writeLog(UserController.class.getName(), user, "Updating a user", 0);
+
+    if (dbCon == null) {
+      dbCon = new DatabaseController();
+    }
+
+    if(user!=null){
+      dbCon.deleteUpdate("UPDATE user SET first_name='"+ user.getFirstname() +
+              "', last_name='"+ user.getLastname() +
+              "', password='"+ Hashing.md5HashWithSalt(user.getPassword()) +
+              "', email='"+ user.getEmail() +
+              "', WHERE id = " + userId);
+      return true;
+    }else{
+      return false;
+    }
+  }
 }
