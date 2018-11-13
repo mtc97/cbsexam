@@ -2,7 +2,13 @@ package controllers;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+
+import cache.UserCache;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTCreationException;
 import model.User;
 import utils.Hashing;
 import utils.Log;
@@ -171,4 +177,31 @@ public class UserController {
       return false;
     }
   }
+
+  public static String loginUsers(User loginUser){
+    Log.writeLog(UserController.class.getName(), loginUser, "Logging in a user", 0);
+
+    if (dbCon == null) {
+      dbCon = new DatabaseController();
+    }
+
+    Timestamp tidsstempel = new Timestamp(System.currentTimeMillis());
+
+    UserCache userCache = new UserCache();
+    ArrayList<User> users = userCache.getUsers(false);
+
+
+
+    for(User user : users){
+      if(user.getEmail().equals(loginUser.getEmail()) && user.getPassword().equals(Hashing.md5HashWithSalt(loginUser.getPassword()))){
+        try{
+          Algorithm algorithmHS = Algorithm.HMAC256("secret");
+          String token = JWT.create().withClaim("MACKEY", tidsstempel).sign(algorithmHS);
+          return token;
+        }catch(JWTCreationException exception){
+
+          }
+        }
+      } return null;
+    }
 }
