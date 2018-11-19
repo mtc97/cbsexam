@@ -7,8 +7,11 @@ import java.util.ArrayList;
 
 import cache.UserCache;
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import model.User;
 import utils.Hashing;
 import utils.Log;
@@ -196,12 +199,31 @@ public class UserController {
       if(user.getEmail().equals(loginUser.getEmail()) && user.getPassword().equals(Hashing.md5HashWithSalt(loginUser.getPassword()))){
         try{
           Algorithm algorithmHS = Algorithm.HMAC256("secret");
-          String token = JWT.create().withClaim("MACKEY", tidsstempel).sign(algorithmHS);
+          String token = JWT.create().withIssuer("auth0").withClaim("test", user.getId()).withClaim("MACKEY", tidsstempel).sign(algorithmHS);
+          user.setToken(token);
           return token;
         }catch(JWTCreationException exception){
-
+            exception.getMessage();
           }
         }
       } return null;
     }
+  public static DecodedJWT verifier(String user){
+
+    Log.writeLog(UserController.class.getName(), user, "Verifying tokens", 0);
+
+    String token = user;
+
+    try{
+      Algorithm algorithm = Algorithm.HMAC256("secret");
+      JWTVerifier verifier = JWT.require(algorithm).withIssuer("auth0").build();
+      DecodedJWT jwt = verifier.verify(token);
+
+      return jwt;
+    }catch(JWTVerificationException e){
+      e.getMessage();
+    }
+    return null;
+  }
+
 }

@@ -1,6 +1,7 @@
 package com.cbsexam;
 
 import cache.UserCache;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.gson.Gson;
 import controllers.UserController;
 import java.util.ArrayList;
@@ -97,7 +98,7 @@ public class UserEndpoints {
     String token = UserController.loginUsers(userLogin);
 
     if(token != null) {
-      return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity("Logged in").build();
+      return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity("Logged in" + token).build();
     }else {
       // Return a response with status 200 and JSON as type
       return Response.status(400).entity("Could not login").build();
@@ -107,13 +108,14 @@ public class UserEndpoints {
   // TODO: Make the system able to delete users fix
   @DELETE
   @Path("/delete/{user_id}")
-  @Consumes(MediaType.APPLICATION_JSON)
-  public Response deleteUser(@PathParam("user_id")int id) {
+  public Response deleteUser(@PathParam("user_id")int id, String body) {
 
-    Boolean delete = UserController.deleteUser(id);
+    DecodedJWT token = UserController.verifier(body);
 
-    userCache.getUsers(false);
+    Boolean delete = UserController.deleteUser(token.getClaim("test").asInt());
+
     if(delete) {
+      userCache.getUsers(true);
       return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity("User " + id + "has been removed from the webshop").build();
     }else{
       return Response.status(400).entity("User has not been found").build();
@@ -122,13 +124,15 @@ public class UserEndpoints {
 
   // TODO: Make the system able to update users fix
   @POST
-  @Path("/post/{user_id}")
+  @Path("/update/{user_id}/{token}")
   @Consumes(MediaType.APPLICATION_JSON)
-  public Response updateUser(@PathParam("user_id") int userId, String body) {
+  public Response updateUser(@PathParam("user_id") int userId, @PathParam("token") String token, String body) {
 
     User user = new Gson().fromJson(body, User.class);
 
-    Boolean update = UserController.updateUser(user, userId);
+    DecodedJWT jwt = UserController.verifier(token);
+
+    Boolean update = UserController.updateUser(user, jwt.getClaim("test").asInt());
 
     userCache.getUsers(true);
     if(update){
@@ -137,4 +141,7 @@ public class UserEndpoints {
       return Response.status(400).entity("User has not been found").build();
     }
   }
+
+
+
 }
