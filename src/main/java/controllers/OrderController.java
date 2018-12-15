@@ -24,8 +24,73 @@ public class OrderController {
     if (dbCon == null) {
       dbCon = new DatabaseController();
     }
-
     // Build SQL string to query
+    String sql = "SELECT *, billing.street_address as billing, shipping.street_address as shipping\n " +
+            "FROM orders\n " +
+            "JOIN user on orders.user_id = user.id\n " +
+            "LEFT JOIN address as billing.id\n " +
+            "ON orders.billing_address as shipping\n " +
+            "LEFT JOIN address as shipping\n " +
+            "ON orders.shipping_address_id = shipping.id\n " +
+            "WHERE orders.id " + id;
+    //Do the query in the database and create an emty object for the results
+    ResultSet rs = dbCon.query(sql);
+    Order order = null;
+
+    try
+    {
+      if (rs.next())
+      {
+        ArrayList<LineItem> lineItems = LineItemController.getLineItemsForOrder(rs.getInt("id"));
+
+        User user = new User(
+                rs.getInt("id"),
+                rs.getString("first_name"),
+                rs.getString("last_name"),
+                rs.getString("password"),
+                rs.getString("email"),
+                rs.getLong("created_at")
+        );
+
+        Address billingAddress = new Address(
+                rs.getInt("billing_address_id"),
+                rs.getString("name"),
+                rs.getString("billing"),
+                rs.getString("city"),
+                rs.getString("zipcode")
+        );
+
+        Address shippingAddress = new Address(
+                rs.getInt("shippin_address_id"),
+                rs.getString("name"),
+                rs.getString("shipping"),
+                rs.getString("city"),
+                rs.getString("zipcode")
+        );
+
+        order = new Order(
+                rs.getInt("id"),
+                user,
+                lineItems,
+                billingAddress,
+                shippingAddress,
+                rs.getFloat("order_total"),
+                rs.getLong("created_at"),
+                rs.getLong("updated_at")
+        );
+
+      return order;
+    } else{
+      System.out.println("No order was found");
+    }
+    } catch (SQLException ble){
+      System.out.println(ble.getMessage());
+    }
+    return order;
+  }
+
+
+  /**  // Build SQL string to query
     String sql = "SELECT * FROM orders where id=" + id;
 
     // Do the query in the database and create an empty object for the results
@@ -64,7 +129,8 @@ public class OrderController {
 
     // Returns null
     return order;
-  }
+
+  }*/
 
   /**
    * Get all orders in database
@@ -77,6 +143,67 @@ public class OrderController {
       dbCon = new DatabaseController();
     }
 
+    String sql = "SELECT *, billing.street_address as billing, shipping.street_address as shipping\n " +
+            "FROM orders\n " +
+            "JOIN user on orders.user_id = user.id\n " +
+            "LEFT JOIN address as billing.id\n " +
+            "ON orders.billing_address as shipping\n " +
+            "LEFT JOIN address as shipping\n " +
+            "ON orders.shipping_address_id = shipping.id\n ";
+    //Do the query in the database and create an emty object for the results
+    ResultSet rs = dbCon.query(sql);
+    ArrayList<Order> orders = new ArrayList <>();
+    try
+    {
+      if (rs.next())
+      {
+        ArrayList<LineItem> lineItems = LineItemController.getLineItemsForOrder(rs.getInt("id"));
+
+        User user = new User(
+                rs.getInt("id"),
+                rs.getString("first_name"),
+                rs.getString("last_name"),
+                rs.getString("password"),
+                rs.getString("email"),
+                rs.getLong("created_at")
+        );
+
+        Address billingAddress = new Address(
+                rs.getInt("billing_address_id"),
+                rs.getString("name"),
+                rs.getString("billing"),
+                rs.getString("city"),
+                rs.getString("zipcode")
+        );
+
+        Address shippingAddress = new Address(
+                rs.getInt("shippin_address_id"),
+                rs.getString("name"),
+                rs.getString("shipping"),
+                rs.getString("city"),
+                rs.getString("zipcode")
+        );
+
+        Order order = new Order(
+                rs.getInt("id"),
+                user,
+                lineItems,
+                billingAddress,
+                shippingAddress,
+                rs.getFloat("order_total"),
+                rs.getLong("created_at"),
+                rs.getLong("updated_at")
+        );
+
+        orders.add(order);
+
+      }
+    } catch (SQLException e){
+      System.out.println(e.getMessage());
+    }
+    return orders;
+  }
+    /*
     String sql = "SELECT * FROM orders";
 
     ResultSet rs = dbCon.query(sql);
@@ -114,7 +241,7 @@ public class OrderController {
     // return the orders
     return orders;
   }
-
+*/
   public static Order createOrder(Order order) {
 
     // Write in log that we've reach this step
