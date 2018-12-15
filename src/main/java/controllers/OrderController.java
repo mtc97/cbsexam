@@ -32,7 +32,7 @@ public class OrderController {
             "ON orders.billing_address as shipping\n " +
             "LEFT JOIN address as shipping\n " +
             "ON orders.shipping_address_id = shipping.id\n " +
-            "WHERE orders.id " + id;
+            "WHERE orders.id= " + id;
     //Do the query in the database and create an emty object for the results
     ResultSet rs = dbCon.query(sql);
     Order order = null;
@@ -152,10 +152,10 @@ public class OrderController {
             "ON orders.shipping_address_id = shipping.id\n ";
     //Do the query in the database and create an emty object for the results
     ResultSet rs = dbCon.query(sql);
-    ArrayList<Order> orders = new ArrayList <>();
+    ArrayList<Order> orders = new ArrayList<>();
     try
     {
-      if (rs.next())
+      while (rs.next())
       {
         ArrayList<LineItem> lineItems = LineItemController.getLineItemsForOrder(rs.getInt("id"));
 
