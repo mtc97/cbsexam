@@ -24,7 +24,7 @@ public class OrderController {
     if (dbCon == null) {
       dbCon = new DatabaseController();
     }
-    // Build SQL string to query
+   /* // Build SQL string to query
     String sql = "SELECT *, billing.street_address as billing, shipping.street_address as shipping\n " +
             "FROM orders\n " +
             "JOIN user on orders.user_id = user.id\n " +
@@ -88,9 +88,9 @@ public class OrderController {
     }
     return order;
   }
+*/
 
-
-  /**  // Build SQL string to query
+    // Build SQL string to query
     String sql = "SELECT * FROM orders where id=" + id;
 
     // Do the query in the database and create an empty object for the results
@@ -130,19 +130,19 @@ public class OrderController {
     // Returns null
     return order;
 
-  }*/
-
+  }
+/**
   /**
    * Get all orders in database
    *
    * @return
    */
-  public static ArrayList<Order> getOrders() {
+ public static ArrayList<Order> getOrders() {
 
     if (dbCon == null) {
       dbCon = new DatabaseController();
     }
-
+/*
     String sql = "SELECT *, billing.street_address as billing, shipping.street_address as shipping\n " +
             "FROM orders\n " +
             "JOIN user on orders.user_id = user.id\n " +
@@ -203,7 +203,10 @@ public class OrderController {
     }
     return orders;
   }
-    /*
+  */
+
+
+
     String sql = "SELECT * FROM orders";
 
     ResultSet rs = dbCon.query(sql);
@@ -241,7 +244,7 @@ public class OrderController {
     // return the orders
     return orders;
   }
-*/
+
   public static Order createOrder(Order order) {
 
     // Write in log that we've reach this step

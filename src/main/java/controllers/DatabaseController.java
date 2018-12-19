@@ -112,9 +112,11 @@ public class DatabaseController {
   }
 
     public Boolean deleteUpdate(String sqlState) {
-      if (connection == null)
-        connection = getConnection();
 
+    // Check connection
+    if (connection == null)
+        connection = getConnection();
+    // Bruger try-catch til enten køre deleteUpdate
       try{
         PreparedStatement deleteUpdate = connection.prepareStatement(sqlState);
         deleteUpdate.executeUpdate();

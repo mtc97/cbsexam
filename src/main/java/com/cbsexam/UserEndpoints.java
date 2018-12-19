@@ -53,7 +53,7 @@ public class UserEndpoints {
     Log.writeLog(this.getClass().getName(), this, "Get all users", 0);
 
     // Get a list of users
-    ArrayList<User> users = userCache.getUsers(true);
+    ArrayList<User> users = userCache.getUsers(false);
 
     // TODO: Add Encryption to JSON fix
     // Transfer users to json in order to return it to the user
@@ -80,6 +80,7 @@ public class UserEndpoints {
 
     // Return the data to the user
     if (createUser != null) {
+      userCache.getUsers(true);
       // Return a response with status 200 and JSON as type
       return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity(json).build();
     } else {
@@ -93,11 +94,15 @@ public class UserEndpoints {
   @Consumes(MediaType.APPLICATION_JSON)
   public Response loginUser(String body) {
 
+    // Read the json from body and transfer it to a user class
     User userLogin = new Gson().fromJson(body, User.class);
 
+    // Use controller to add the token to the login
     String token = UserController.loginUsers(userLogin);
 
+    // Return data to the user
     if(token != null) {
+      // Return resonse 200 message + the token from the user class
       return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity("Logged in" + token).build();
     }else {
       // Return a response with status 200 and JSON as type
@@ -110,10 +115,13 @@ public class UserEndpoints {
   @Path("/delete/{user_id}")
   public Response deleteUser(@PathParam("user_id")int id, String body) {
 
+    // Verify the token with the controller
     DecodedJWT token = UserController.verifier(body);
 
+    // Delete the user with the controller
     Boolean delete = UserController.deleteUser(token.getClaim("test").asInt());
 
+    // Return data to user, either 200/400 succes or not
     if(delete) {
       userCache.getUsers(true);
       return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity("User " + id + "has been removed from the webshop").build();
@@ -128,14 +136,18 @@ public class UserEndpoints {
   @Consumes(MediaType.APPLICATION_JSON)
   public Response updateUser(@PathParam("user_id") int userId, @PathParam("token") String token, String body) {
 
+    // Read json from body to user class
     User user = new Gson().fromJson(body, User.class);
 
+    // Verify the token with controller
     DecodedJWT jwt = UserController.verifier(token);
 
+    // Update the user with controller
     Boolean update = UserController.updateUser(user, jwt.getClaim("test").asInt());
 
-    userCache.getUsers(true);
+    // // Return data to user, either 200/400 succes or not
     if(update){
+      userCache.getUsers(true);
       return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity("User " + userId + "has been updated").build();
     }else{
       return Response.status(400).entity("User has not been found").build();

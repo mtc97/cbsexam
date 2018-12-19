@@ -99,8 +99,8 @@ public class UserController {
         // Add element to list
         users.add(user);
       }
-    } catch (SQLException ex) {
-      System.out.println(ex.getMessage());
+    } catch (SQLException exi) {
+      System.out.println(exi.getMessage());
     }
 
     // Return the list of users
@@ -150,17 +150,22 @@ public class UserController {
   public static Boolean deleteUser(int id) {
     Log.writeLog(UserController.class.getName(), id, "Deleting a user", 0);
 
+    // Check connection
     if (dbCon == null) {
       dbCon = new DatabaseController();
     }
 
+    // Sets user
     User user = UserController.getUser(id);
 
+    // If user is not null run SQL statement
     if(user!=null){
       dbCon.deleteUpdate("DELETE FROM user WHERE id="+id);
       return true;
     }
     else{
+
+      // return false if user is null
       return false;
     }
 
@@ -169,10 +174,12 @@ public class UserController {
   public static Boolean updateUser(User user, int userId) {
     Log.writeLog(UserController.class.getName(), user, "Updating a user", 0);
 
+    // Check connection
     if (dbCon == null) {
       dbCon = new DatabaseController();
     }
 
+    // If user is not null run SQL statements
     if(user!=null){
       dbCon.deleteUpdate("UPDATE user SET first_name='"+ user.getFirstname() +
               "', last_name='"+ user.getLastname() +
@@ -181,6 +188,8 @@ public class UserController {
               "', WHERE id = " + userId);
       return true;
     }else{
+
+      // return false if user is null
       return false;
     }
   }
@@ -188,20 +197,27 @@ public class UserController {
   public static String loginUsers(User loginUser){
     Log.writeLog(UserController.class.getName(), loginUser, "Logging in a user", 0);
 
+    // Check connection
     if (dbCon == null) {
       dbCon = new DatabaseController();
     }
 
+    // Set a timestamp
     Timestamp tidsstempel = new Timestamp(System.currentTimeMillis());
 
+    // Sets cache
     UserCache userCache = new UserCache();
+
+    // Loads users from cache
     ArrayList<User> users = userCache.getUsers(false);
 
 
 
     for(User user : users){
+      // Check if email and password is correct
       if(user.getEmail().equals(loginUser.getEmail()) && user.getPassword().equals(Hashing.md5HashWithSalt(loginUser.getPassword()))){
         try{
+          // Creates a token and returns it
           Algorithm algorithmHS = Algorithm.HMAC256("secret");
           String token = JWT.create().withIssuer("auth0").withClaim("test", user.getId()).withClaim("MACKEY", tidsstempel).sign(algorithmHS);
           user.setToken(token);
@@ -216,8 +232,10 @@ public class UserController {
 
     Log.writeLog(UserController.class.getName(), user, "Verifying tokens", 0);
 
+    // Set token to user
     String token = user;
 
+    // Verify token and return the verified token
     try{
       Algorithm algorithm = Algorithm.HMAC256("secret");
       JWTVerifier verifier = JWT.require(algorithm).withIssuer("auth0").build();

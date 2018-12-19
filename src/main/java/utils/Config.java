@@ -28,9 +28,13 @@ public final class Config {
     return ENCRYP_KEY.toCharArray();
   }
 
-  public static long getOrderTtl(){return ORDER_TTL;}
+  public static long getOrderTtl(){
+    return ORDER_TTL;
+  }
 
-  public static long getUserTtl(){return USER_TTL;}
+  public static long getUserTtl(){
+    return USER_TTL;
+  }
 
   public static long getProductTtl() {
     return PRODUCT_TTL;
