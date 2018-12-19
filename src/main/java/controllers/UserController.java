@@ -93,7 +93,7 @@ public class UserController {
                 rs.getString("last_name"),
                 rs.getString("password"),
                 rs.getString("email"),
-                    rs.getLong("created_time")
+                    rs.getLong("created_at")
             );
 
         // Add element to list
